@@ -15,6 +15,7 @@ using YSJU.ClientRegistrationSystem.AppEntities.Products;
 using YSJU.ClientRegistrationSystem.Interfaces.ClientDetailManagement;
 using YSJU.ClientRegistrationSystem.Dtos.ResponseDtos;
 using YSJU.ClientRegistrationSystem.Dtos.ClientDetailDtos;
+using System.Net.WebSockets;
 
 namespace YSJU.ClientRegistrationSystem.AppServices.ClientDetailManagement
 {
@@ -271,6 +272,31 @@ namespace YSJU.ClientRegistrationSystem.AppServices.ClientDetailManagement
             catch (Exception)
             {
                 Logger.LogError(nameof(GetPagedAndSortedClientDetailAsync));
+                throw;
+            }
+        }
+
+        public async Task<string> DeleteClientDetailAsync(Guid clientPersonalDetailId)
+        {
+            try
+            {
+                Logger.LogInformation($"DeleteClientDetailAsync requested by User: {CurrentUser.Id}");
+                Logger.LogDebug($"DeleteClientDetailAsync requested for User: {(CurrentUser.Id, clientPersonalDetailId)}");
+
+                var clientPersonalDetailQuery = await _clientPersonalDetailRepository.GetQueryableAsync();
+
+                var clientPersonalDetail = clientPersonalDetailQuery.Where(x => x.Id == clientPersonalDetailId).FirstOrDefault()
+                    ?? throw new UserFriendlyException("Client Personal Detail not found", code: "400");
+
+                await _clientPersonalDetailRepository.DeleteAsync(clientPersonalDetailId, true);
+
+                Logger.LogInformation($"DeleteClientDetailAsync responded for User: {CurrentUser.Id}");
+
+                return "client Personal Detail deleted successfully";
+            }
+            catch (Exception)
+            {
+                Logger.LogError(nameof(DeleteClientDetailAsync));
                 throw;
             }
         }

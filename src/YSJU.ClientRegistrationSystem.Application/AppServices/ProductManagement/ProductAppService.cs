@@ -14,10 +14,11 @@ using YSJU.ClientRegistrationSystem.AppEntities.ProductCategories;
 using YSJU.ClientRegistrationSystem.AppEntities.Products;
 using YSJU.ClientRegistrationSystem.Dtos.ProductManagementDtos;
 using YSJU.ClientRegistrationSystem.Dtos.ResponseDtos;
+using YSJU.ClientRegistrationSystem.Interfaces.ProductManagement;
 
 namespace YSJU.ClientRegistrationSystem.AppServices.ProductManagement
 {
-    public class ProductAppService : ApplicationService
+    public class ProductAppService : ApplicationService, IProductAppService
     {
         private readonly IRepository<Product, Guid> _productRepository;
         private readonly IRepository<ProductCategory, Guid> _productCategoryRepository;
@@ -254,6 +255,31 @@ namespace YSJU.ClientRegistrationSystem.AppServices.ProductManagement
             catch (Exception)
             {
                 Logger.LogError(nameof(GetProductCategoryListAsync));
+                throw;
+            }
+        }
+
+        public async Task<string> DeleteProductAsync(Guid clientPersonalDetailId)
+        {
+            try
+            {
+                Logger.LogInformation($"DeleteClientDetailAsync requested by User: {CurrentUser.Id}");
+                Logger.LogDebug($"DeleteClientDetailAsync requested for User: {(CurrentUser.Id, clientPersonalDetailId)}");
+
+                var productQuery = await _productRepository.GetQueryableAsync();
+
+                var product = productQuery.Where(x => x.Id == clientPersonalDetailId).FirstOrDefault()
+                    ?? throw new UserFriendlyException("Client Personal Detail not found", code: "400");
+
+                await _productRepository.DeleteAsync(product, true);
+
+                Logger.LogInformation($"DeleteProductAsync responded for User: {CurrentUser.Id}");
+
+                return "Product deleted successfully";
+            }
+            catch (Exception)
+            {
+                Logger.LogError(nameof(DeleteProductAsync));
                 throw;
             }
         }
