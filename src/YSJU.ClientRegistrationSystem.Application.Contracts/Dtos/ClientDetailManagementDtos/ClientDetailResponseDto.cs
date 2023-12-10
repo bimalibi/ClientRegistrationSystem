@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 using Volo.Abp.Application.Dtos;
 
@@ -16,5 +17,6 @@ namespace YSJU.ClientRegistrationSystem.Dtos.ClientDetailDtos
         public string Email { get; set; }
         public Guid ProductId { get; set; }
         public string ProductName { get; set; }
+        public DateTime CreationTime { get; set; }
     }
 }
