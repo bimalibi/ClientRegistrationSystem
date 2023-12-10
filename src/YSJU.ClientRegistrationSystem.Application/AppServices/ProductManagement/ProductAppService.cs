@@ -139,6 +139,7 @@ namespace YSJU.ClientRegistrationSystem.AppServices.ProductManagement
                 productData.Manufacturer = input.Manufacturer;
                 productData.Model = input.Model;
                 productData.Price = input.Price;
+                productData.ProductCategoryId = input.ProductCategoryId;
 
                 await _productRepository.UpdateAsync(productData, true);
 

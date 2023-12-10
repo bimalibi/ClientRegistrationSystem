@@ -10,5 +10,6 @@ namespace YSJU.ClientRegistrationSystem.Dtos.ProductManagementDtos
         public string Manufacturer { get; set; }
         public string Model { get; set; }
         public int Price { get; set; }
+        public Guid ProductCategoryId { get; set; }
     }
 }

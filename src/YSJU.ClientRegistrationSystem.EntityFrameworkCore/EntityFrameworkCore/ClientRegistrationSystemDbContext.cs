@@ -110,7 +110,7 @@ public class ClientRegistrationSystemDbContext :
             b.Property(x => x.MiddleName).IsRequired();
             b.Property(x => x.LastName).IsRequired();
             b.Property(x => x.Address).IsRequired();
-            b.Property(x => x.PhoneNumber).IsRequired();
+            b.Property(x => x.PhoneNumber).HasMaxLength(16).IsRequired();
             b.Property(x => x.Email).IsRequired();
             b.HasOne<Product>().WithMany().HasForeignKey(x => x.ProductId).IsRequired();
         });

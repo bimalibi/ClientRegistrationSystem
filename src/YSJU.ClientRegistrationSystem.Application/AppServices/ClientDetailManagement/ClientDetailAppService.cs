@@ -172,6 +172,7 @@ namespace YSJU.ClientRegistrationSystem.AppServices.ClientDetailManagement
                 clientPersonalDetail.LastName = input.LastName;
                 clientPersonalDetail.Address = input.Address;
                 clientPersonalDetail.PhoneNumber = input.PhoneNumber;
+                clientPersonalDetail.ProductId = input.ProductId;
 
                 await _clientPersonalDetailRepository.UpdateAsync(clientPersonalDetail);
 
