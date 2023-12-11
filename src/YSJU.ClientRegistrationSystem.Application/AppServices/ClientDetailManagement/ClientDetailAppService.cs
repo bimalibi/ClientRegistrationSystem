@@ -16,6 +16,10 @@ using YSJU.ClientRegistrationSystem.Interfaces.ClientDetailManagement;
 using YSJU.ClientRegistrationSystem.Dtos.ResponseDtos;
 using YSJU.ClientRegistrationSystem.Dtos.ClientDetailDtos;
 using System.Net.WebSockets;
+using YSJU.ClientRegistrationSystem.Dtos.ClientDetailManagementDtos;
+using System.IO;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 
 namespace YSJU.ClientRegistrationSystem.AppServices.ClientDetailManagement
 {
@@ -250,6 +254,7 @@ namespace YSJU.ClientRegistrationSystem.AppServices.ClientDetailManagement
                              select new ClientDetailResponseDto
                              {
                                  Id = clientDetail.Id,
+                                 ClientId = clientDetail.ClientId,
                                  FirstName = clientDetail.FirstName,
                                  MiddleName = clientDetail.MiddleName,
                                  LastName = clientDetail.LastName,
@@ -298,6 +303,101 @@ namespace YSJU.ClientRegistrationSystem.AppServices.ClientDetailManagement
             catch (Exception)
             {
                 Logger.LogError(nameof(DeleteClientDetailAsync));
+                throw;
+            }
+        }
+
+        public async Task<ExportClientDetailDto> ExportAllClientDetail()
+        {
+            try
+            {
+                Logger.LogInformation($"ExportAllClientDetail requested by User: {CurrentUser.Id}");
+
+                var clientPersonalDetailQuery = await _clientPersonalDetailRepository.GetQueryableAsync();
+                var productQuery = await _productRepository.GetQueryableAsync();
+                var productCategoryQuery = await _productCategoryRepository.GetQueryableAsync();
+
+                var query = (from clientDetail in clientPersonalDetailQuery
+                             join product in productQuery on clientDetail.ProductId equals product.Id into productLeft
+                             from product in productLeft.DefaultIfEmpty()
+                             join productCategory in productCategoryQuery on product.ProductCategoryId equals productCategory.Id into productCategoryLeft
+                             from productCategory in productCategoryLeft.DefaultIfEmpty()
+                             select new ClientDetailResponseDto
+                             {
+                                 Id = clientDetail.Id,
+                                 FirstName = clientDetail.FirstName,
+                                 MiddleName = clientDetail.MiddleName,
+                                 LastName = clientDetail.LastName,
+                                 Address = clientDetail.Address,
+                                 PhoneNumber = clientDetail.PhoneNumber,
+                                 Email = clientDetail.Email,
+                                 ProductId = clientDetail.ProductId,
+                                 ProductName = product.Name,
+                                 CreationTime = clientDetail.CreationTime,
+                                 ProductCategoryName = productCategory.DisplayName
+                             });
+                var clientDetailList = query.ToList();
+                var stream = new MemoryStream();
+
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                using (var excelPackage = new ExcelPackage(stream))
+                {
+                    ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add("Employee Personal Details");
+
+                    worksheet.Row(1).Height = 20;
+                    worksheet.Row(1).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    worksheet.Row(1).Style.Font.Bold = true;
+
+                    var headingRowIndex = 1;
+                    var headingColumnIndex = 1;
+
+                    worksheet.Cells[headingRowIndex, headingColumnIndex].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    worksheet.Cells[headingRowIndex, headingColumnIndex++].Value = "Client Id";
+                    worksheet.Cells[headingRowIndex, headingColumnIndex].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    worksheet.Cells[headingRowIndex, headingColumnIndex++].Value = "Full Name";
+                    worksheet.Cells[headingRowIndex, headingColumnIndex].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    worksheet.Cells[headingRowIndex, headingColumnIndex++].Value = "Address";
+                    worksheet.Cells[headingRowIndex, headingColumnIndex].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    worksheet.Cells[headingRowIndex, headingColumnIndex++].Value = "Email";
+                    worksheet.Cells[headingRowIndex, headingColumnIndex].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    worksheet.Cells[headingRowIndex, headingColumnIndex++].Value = "Phone Number";
+                    worksheet.Cells[headingRowIndex, headingColumnIndex].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    worksheet.Cells[headingRowIndex, headingColumnIndex++].Value = "Product";
+                    worksheet.Cells[headingRowIndex, headingColumnIndex].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    worksheet.Cells[headingRowIndex, headingColumnIndex++].Value = "Product Category";
+                    headingRowIndex++;
+                    var sNo = 1;
+
+                    foreach (var rowData in clientDetailList)
+                    {
+                        headingColumnIndex = 1;
+                        worksheet.Cells[headingRowIndex, headingColumnIndex++].Value = rowData.ClientId;
+                        worksheet.Cells[headingRowIndex, headingColumnIndex++].Value = $"{rowData.FirstName} {rowData.MiddleName} {rowData.LastName}";
+                        worksheet.Cells[headingRowIndex, headingColumnIndex++].Value = rowData.Address;
+                        worksheet.Cells[headingRowIndex, headingColumnIndex++].Value = rowData.Email;
+                        worksheet.Cells[headingRowIndex, headingColumnIndex++].Value = rowData.PhoneNumber;
+                        worksheet.Cells[headingRowIndex, headingColumnIndex++].Value = rowData.ProductName;
+                        worksheet.Cells[headingRowIndex, headingColumnIndex++].Value = rowData.ProductCategoryName;
+                        headingRowIndex++;
+                        sNo++;
+                    }
+                    excelPackage.Save();
+
+                    var excelFileStream = await Task.FromResult(stream);
+
+                    Logger.LogInformation($"ExportAllClientDetail responded for User: {CurrentUser.Id}");
+
+                    return new ExportClientDetailDto
+                    {
+                        Name = $"ClientDetails-{DateTime.Now:yyyy-MM-dd-mm-ss}",
+                        content = excelFileStream.ToArray()
+                    };
+                }
+            }
+            catch (Exception)
+            {
+                Logger.LogError(nameof(ExportAllClientDetail));
                 throw;
             }
         }

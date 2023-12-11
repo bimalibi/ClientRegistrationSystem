@@ -18,5 +18,6 @@ namespace YSJU.ClientRegistrationSystem.Dtos.ClientDetailDtos
         public Guid ProductId { get; set; }
         public string ProductName { get; set; }
         public DateTime CreationTime { get; set; }
+        public string ProductCategoryName { get; set;}
     }
 }
