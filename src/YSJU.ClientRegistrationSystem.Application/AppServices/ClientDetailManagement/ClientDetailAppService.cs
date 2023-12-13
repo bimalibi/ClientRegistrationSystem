@@ -282,7 +282,7 @@ namespace YSJU.ClientRegistrationSystem.AppServices.ClientDetailManagement
             }
         }
 
-        public async Task<string> DeleteClientDetailAsync(Guid clientPersonalDetailId)
+        public async Task<ResponseDto<ClientDetailResponseDto>> DeleteClientDetailAsync(Guid clientPersonalDetailId)
         {
             try
             {
@@ -294,11 +294,18 @@ namespace YSJU.ClientRegistrationSystem.AppServices.ClientDetailManagement
                 var clientPersonalDetail = clientPersonalDetailQuery.Where(x => x.Id == clientPersonalDetailId).FirstOrDefault()
                     ?? throw new UserFriendlyException("Client Personal Detail not found", code: "400");
 
-                await _clientPersonalDetailRepository.DeleteAsync(clientPersonalDetailId, true);
+                await _clientPersonalDetailRepository.DeleteAsync(clientPersonalDetail, true);
 
                 Logger.LogInformation($"DeleteClientDetailAsync responded for User: {CurrentUser.Id}");
 
-                return "client Personal Detail deleted successfully";
+                var response = new ResponseDto<ClientDetailResponseDto>
+                {
+                    Success = true,
+                    Message = "Client personal detail deleted successfully",
+                    Code = 200,
+                    Data = null
+                };
+                return response;
             }
             catch (Exception)
             {

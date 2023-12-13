@@ -15,6 +15,6 @@ namespace YSJU.ClientRegistrationSystem.Interfaces.ClientDetailManagement
         Task<ClientDetailResponseDto> GetClientDetailById(Guid clientPersonalDetailId);
         Task<ResponseDto<ClientDetailResponseDto>> UpdateClientDetail(Guid clientPersonalDetailId, UpdateClientDetailDto input);
         Task<PagedResultDto<ClientDetailResponseDto>> GetPagedAndSortedClientDetailAsync(PagedAndSortedClientDetailListDto input);
-        Task<string> DeleteClientDetailAsync(Guid clientPersonalDetailId);
+        Task<ResponseDto<ClientDetailResponseDto>> DeleteClientDetailAsync(Guid clientPersonalDetailId);
     }
 }

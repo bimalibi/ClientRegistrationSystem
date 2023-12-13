@@ -260,7 +260,7 @@ namespace YSJU.ClientRegistrationSystem.AppServices.ProductManagement
             }
         }
 
-        public async Task<string> DeleteProductAsync(Guid clientPersonalDetailId)
+        public async Task<ResponseDto<ProductResponseDto>> DeleteProductAsync(Guid clientPersonalDetailId)
         {
             try
             {
@@ -276,7 +276,14 @@ namespace YSJU.ClientRegistrationSystem.AppServices.ProductManagement
 
                 Logger.LogInformation($"DeleteProductAsync responded for User: {CurrentUser.Id}");
 
-                return "Product deleted successfully";
+                var reposne = new ResponseDto<ProductResponseDto>
+                {
+                    Success = true,
+                    Code = 200,
+                    Message = "Product deleted successfully",
+                    Data = null
+                };
+                return reposne;
             }
             catch (Exception)
             {

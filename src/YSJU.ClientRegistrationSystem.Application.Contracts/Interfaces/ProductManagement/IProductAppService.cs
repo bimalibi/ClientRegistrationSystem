@@ -16,6 +16,6 @@ namespace YSJU.ClientRegistrationSystem.Interfaces.ProductManagement
         Task<ResponseDto<ProductResponseDto>> UpdateProductAsync(Guid id, UpdateProductDto input);
         Task<PagedResultDto<ProductResponseDto>> GetPagedAndSortedProductListAsync(PagedAndSortedProductDto input);
         Task<List<ProductCategoryResponseDto>> GetProductCategoryListAsync();
-        Task<string> DeleteProductAsync(Guid clientPersonalDetailId);
+        Task<ResponseDto<ProductResponseDto>> DeleteProductAsync(Guid clientPersonalDetailId);
     }
 }
