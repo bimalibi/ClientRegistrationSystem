@@ -325,6 +325,7 @@ namespace YSJU.ClientRegistrationSystem.AppServices.ClientDetailManagement
                              select new ClientDetailResponseDto
                              {
                                  Id = clientDetail.Id,
+                                 ClientId = clientDetail.ClientId,
                                  FirstName = clientDetail.FirstName,
                                  MiddleName = clientDetail.MiddleName,
                                  LastName = clientDetail.LastName,
